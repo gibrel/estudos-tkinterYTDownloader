@@ -73,7 +73,8 @@ class YTDownloader:
         except TypeError:
             self.send_message("ERROR", "Invalid destination folder provided.")
 
-    def send_message(self, message_type, message_text):
+    @staticmethod
+    def send_message(message_type, message_text):
         window = Toplevel()
         window.title(message_type)
         window.resizable(FALSE, FALSE)
