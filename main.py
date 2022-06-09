@@ -1,4 +1,7 @@
 from tkinter import *
+from pytube import YouTube, exceptions
+from tkinter import filedialog
+import os
 
 
 class YTDownloader:
@@ -29,10 +32,56 @@ class YTDownloader:
 
         Label(self.frame2, text=" ", padx=5).pack(side=LEFT)
 
-        self.play = Button(self.frame2, bg="red", text="▶", fg="white", bd=0, command=NONE, width=3, height=2, padx=5)
+        self.play = Button(self.frame2, bg="red", text="▶", fg="white", bd=0, width=3, height=2, padx=5,
+                           command=lambda: self.download(self.link.get()))
         self.play.pack(side=LEFT, anchor=CENTER)
 
+        self.frame3 = Frame(self.window)
+        self.frame3.pack()
+
+        self.value_radio_button = IntVar(value=2)
+
+        self.radio1 = Radiobutton(self.frame3, text="Audio", variable=self.value_radio_button, value=0)
+        self.radio1.pack(side=LEFT)
+
+        self.radio2 = Radiobutton(self.frame3, text="Video", variable=self.value_radio_button, value=1)
+        self.radio2.pack(side=LEFT)
+
+        self.radio3 = Radiobutton(self.frame3, text="Audio e Video", variable=self.value_radio_button, value=2)
+        self.radio3.pack(side=LEFT)
+
         self.window.mainloop()
+
+    def download(self, link):
+        try:
+            if self.value_radio_button.get() < 3:
+                folder = filedialog.askdirectory()
+                if not folder or folder.strip() == "" or not os.path.exists(folder):
+                    raise TypeError("Invalid folder path.")
+                yt = YouTube(link)
+                if self.value_radio_button.get() == 0:
+                    yt.streams.filter(only_audio=True).first().download(folder)
+                elif self.value_radio_button.get() == 1:
+                    yt.streams.filter(only_video=True).first().download(folder)
+                elif self.value_radio_button.get() == 2:
+                    yt.streams.filter(progressive=True, file_extension='mp4').first().download(folder)
+                self.send_message("Success!", "Download concluded at\r\n" + folder)
+
+        except exceptions.RegexMatchError:
+            self.send_message("ERROR", "Invalid Link provided.")
+
+        except TypeError:
+            self.send_message("ERROR", "Invalid destination folder provided.")
+
+    def send_message(self, message_type, message_text):
+        window = Toplevel()
+        window.title(message_type)
+        window.resizable(FALSE, FALSE)
+        window.geometry("300x200+300+200")
+
+        Label(window, text=message_text, pady=30, font="Comic 12").pack()
+
+        Button(window, text="OK", command=window.destroy)
 
 
 YTDownloader()
