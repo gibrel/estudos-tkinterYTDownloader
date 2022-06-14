@@ -86,3 +86,5 @@ class YTDownloader:
 
 
 YTDownloader()
+
+# pyinstaller main.py --onefile -n "YT Downloader" --noconsole --hidden-import='pytube'
